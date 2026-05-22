@@ -1,3 +1,5 @@
+import { RotateCcw, Search } from 'lucide-react';
+
 export default function BookFilters({ filters, onChange }) {
     const handleInput = (field) => (event) => {
         onChange({ ...filters, [field]: event.target.value });
@@ -12,17 +14,21 @@ export default function BookFilters({ filters, onChange }) {
     };
 
     return (
-        <section className="mb-6 rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
                 <div className="space-y-2">
-                    <p className="text-lg font-semibold text-slate-900">Filtrar libros</p>
+                    <p className="inline-flex items-center gap-2 text-lg font-semibold text-slate-900">
+                        <Search size={18} className="text-university-700" aria-hidden="true" />
+                        Filtrar libros
+                    </p>
                     <p className="text-sm text-slate-600">Busca por título, autor o categoría y ve solo los libros disponibles.</p>
                 </div>
                 <button
                     type="button"
                     onClick={handleClear}
-                    className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+                    className="btn-premium-secondary"
                 >
+                    <RotateCcw size={16} aria-hidden="true" />
                     Limpiar filtros
                 </button>
             </div>
@@ -34,7 +40,7 @@ export default function BookFilters({ filters, onChange }) {
                         type="text"
                         value={filters.title || ''}
                         onChange={handleInput('title')}
-                        className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-university-500 focus:ring-2 focus:ring-university-100"
+                        className="input-premium"
                     />
                 </label>
                 <label className="space-y-2 text-sm text-slate-700">
@@ -43,7 +49,7 @@ export default function BookFilters({ filters, onChange }) {
                         type="text"
                         value={filters.author || ''}
                         onChange={handleInput('author')}
-                        className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-university-500 focus:ring-2 focus:ring-university-100"
+                        className="input-premium"
                     />
                 </label>
                 <label className="space-y-2 text-sm text-slate-700">
@@ -52,10 +58,10 @@ export default function BookFilters({ filters, onChange }) {
                         type="text"
                         value={filters.category || ''}
                         onChange={handleInput('category')}
-                        className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-university-500 focus:ring-2 focus:ring-university-100"
+                        className="input-premium"
                     />
                 </label>
-                <label className="flex items-center gap-3 rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                <label className="flex items-center gap-3 rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-700">
                     <input
                         type="checkbox"
                         checked={filters.available || false}

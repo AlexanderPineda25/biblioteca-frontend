@@ -105,7 +105,7 @@ export default function ChatbotWidget() {
                         className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                         <div
-                            className={`max-w-[88%] rounded-lg px-3 py-2 text-sm leading-6 ${
+                            className={`max-w-[88%] rounded-md px-3 py-2 text-sm leading-6 ${
                                 message.role === 'user'
                                     ? 'bg-university-700 text-white'
                                     : 'border border-slate-200 bg-white text-slate-800'

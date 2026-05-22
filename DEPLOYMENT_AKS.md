@@ -48,12 +48,17 @@ docker push "$ACR/biblioteca/frontend:$TAG"
 
 ## Aplicar Kubernetes
 
-```powershell
-kubectl apply -k k8s/overlays/aks-no-domain
+Aplica el manifiesto ya renderizado con la imagen final. Esto evita rollouts intermedios con `latest` o imagenes placeholder.
 
-kubectl set image deployment/biblioteca-frontend `
-  frontend="$ACR/biblioteca/frontend:$TAG" `
-  -n biblioteca
+```powershell
+$ACR="acrbiblioalex25.azurecr.io"
+$TAG="aks-20260522-063426"
+
+kubectl kustomize k8s/overlays/aks-no-domain |
+  ForEach-Object {
+    $_ -replace 'image: .*frontend:.*', "image: $ACR/biblioteca/frontend:$TAG"
+  } |
+  kubectl apply -f -
 
 kubectl rollout status deployment/biblioteca-frontend -n biblioteca
 ```
@@ -85,7 +90,10 @@ Este repo puede desplegar solo el frontend sin reconstruir backend:
 
 ```powershell
 kubectl set image deployment/biblioteca-frontend frontend="$ACR/biblioteca/frontend:$TAG" -n biblioteca
+kubectl rollout status deployment/biblioteca-frontend -n biblioteca
 ```
+
+Para redeploys completos se recomienda el metodo renderizado de la seccion anterior.
 
 ## CI/CD
 
@@ -102,3 +110,11 @@ VITE_AUTH_SERVICE_URL=http://52.158.169.2
 VITE_CATALOG_SERVICE_URL=http://52.158.169.2
 VITE_CHATBOT_SERVICE_URL=http://52.158.169.2
 ```
+
+Secret requerido:
+
+```text
+AZURE_CREDENTIALS
+```
+
+El workflow valida `AKS_RESOURCE_GROUP`, `AKS_CLUSTER_NAME`, `ACR_NAME`, `ACR_LOGIN_SERVER` y `AZURE_CREDENTIALS` antes de hacer login en Azure.

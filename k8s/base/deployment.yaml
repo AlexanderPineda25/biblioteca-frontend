@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: biblioteca/frontend:latest
+          image: acrbiblioalex25.azurecr.io/biblioteca/frontend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
