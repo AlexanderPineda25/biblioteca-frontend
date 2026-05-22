@@ -32,9 +32,9 @@ VITE_CHATBOT_SERVICE_URL
 Para ingress unico de backend:
 
 ```text
-VITE_AUTH_SERVICE_URL=https://api.biblioteca.example.com
-VITE_CATALOG_SERVICE_URL=https://api.biblioteca.example.com
-VITE_CHATBOT_SERVICE_URL=https://api.biblioteca.example.com
+VITE_AUTH_SERVICE_URL=http://52.158.169.2
+VITE_CATALOG_SERVICE_URL=http://52.158.169.2
+VITE_CHATBOT_SERVICE_URL=http://52.158.169.2
 ```
 
 ## Secrets del repositorio
@@ -46,3 +46,5 @@ AZURE_CREDENTIALS
 ## Despliegue por repo separado
 
 Este workflow esta dentro de `Biblioteca-Frontend/.github/workflows`. Cuando publiques esta carpeta como repo independiente, GitHub Actions lo detectara automaticamente.
+
+El workflow escucha pushes a `main` y `master`, usa `k8s/overlays/aks-no-domain` para demo sin DNS, y publica la imagen como `ACR_LOGIN_SERVER/biblioteca/frontend:<sha>`.

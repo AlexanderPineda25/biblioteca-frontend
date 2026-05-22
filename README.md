@@ -82,12 +82,13 @@ Manifiestos:
 ```text
 k8s/base
 k8s/overlays/aks
+k8s/overlays/aks-no-domain
 ```
 
 Validar render:
 
 ```powershell
-kubectl kustomize k8s/overlays/aks
+kubectl kustomize k8s/overlays/aks-no-domain
 ```
 
 Pipeline:
@@ -97,6 +98,14 @@ Pipeline:
 ```
 
 El pipeline despliega solo `biblioteca-frontend`, sin tocar backend.
+
+Despliegue AKS verificado:
+
+```text
+http://52.158.169.2
+ACR: acrbiblioalex25.azurecr.io
+Imagen: biblioteca/frontend
+```
 
 ## Estructura relevante
 

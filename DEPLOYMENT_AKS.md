@@ -19,32 +19,40 @@ VITE_CATALOG_SERVICE_URL=https://api.biblioteca.example.com
 VITE_CHATBOT_SERVICE_URL=https://api.biblioteca.example.com
 ```
 
+Para la demo actual sin dominio:
+
+```env
+VITE_AUTH_SERVICE_URL=http://52.158.169.2
+VITE_CATALOG_SERVICE_URL=http://52.158.169.2
+VITE_CHATBOT_SERVICE_URL=http://52.158.169.2
+```
+
 Como el frontend es estatico, si cambian estas URLs debes reconstruir la imagen.
 
 ## Build y push manual
 
 ```powershell
-$ACR="acrbibliotecaedu123.azurecr.io"
+$ACR="acrbiblioalex25.azurecr.io"
 $TAG="manual"
 
-az acr login --name acrbibliotecaedu123
+az acr login --name acrbiblioalex25
 
 docker build `
-  --build-arg VITE_AUTH_SERVICE_URL="https://api.biblioteca.example.com" `
-  --build-arg VITE_CATALOG_SERVICE_URL="https://api.biblioteca.example.com" `
-  --build-arg VITE_CHATBOT_SERVICE_URL="https://api.biblioteca.example.com" `
-  -t "$ACR/biblioteca-frontend:$TAG" .
+  --build-arg VITE_AUTH_SERVICE_URL="http://52.158.169.2" `
+  --build-arg VITE_CATALOG_SERVICE_URL="http://52.158.169.2" `
+  --build-arg VITE_CHATBOT_SERVICE_URL="http://52.158.169.2" `
+  -t "$ACR/biblioteca/frontend:$TAG" .
 
-docker push "$ACR/biblioteca-frontend:$TAG"
+docker push "$ACR/biblioteca/frontend:$TAG"
 ```
 
 ## Aplicar Kubernetes
 
 ```powershell
-kubectl apply -k k8s/overlays/aks
+kubectl apply -k k8s/overlays/aks-no-domain
 
 kubectl set image deployment/biblioteca-frontend `
-  frontend="$ACR/biblioteca-frontend:$TAG" `
+  frontend="$ACR/biblioteca/frontend:$TAG" `
   -n biblioteca
 
 kubectl rollout status deployment/biblioteca-frontend -n biblioteca
@@ -56,6 +64,7 @@ kubectl rollout status deployment/biblioteca-frontend -n biblioteca
 kubectl get pods -n biblioteca -l app=biblioteca-frontend
 kubectl get ingress -n biblioteca
 kubectl logs deployment/biblioteca-frontend -n biblioteca --tail=50
+Invoke-WebRequest -UseBasicParsing "http://52.158.169.2/"
 ```
 
 Port-forward temporal:
@@ -75,5 +84,21 @@ http://localhost:4173
 Este repo puede desplegar solo el frontend sin reconstruir backend:
 
 ```powershell
-kubectl set image deployment/biblioteca-frontend frontend="$ACR/biblioteca-frontend:$TAG" -n biblioteca
+kubectl set image deployment/biblioteca-frontend frontend="$ACR/biblioteca/frontend:$TAG" -n biblioteca
+```
+
+## CI/CD
+
+El workflow `.github/workflows/frontend-aks-ci-cd.yml` escucha `main` y `master`, usa el overlay `k8s/overlays/aks-no-domain` y publica la imagen como `ACR_LOGIN_SERVER/biblioteca/frontend:<sha>`.
+
+Variables requeridas en GitHub:
+
+```text
+AKS_RESOURCE_GROUP=rg-biblioteca-aks-edu
+AKS_CLUSTER_NAME=aks-biblioteca-edu
+ACR_NAME=acrbiblioalex25
+ACR_LOGIN_SERVER=acrbiblioalex25.azurecr.io
+VITE_AUTH_SERVICE_URL=http://52.158.169.2
+VITE_CATALOG_SERVICE_URL=http://52.158.169.2
+VITE_CHATBOT_SERVICE_URL=http://52.158.169.2
 ```

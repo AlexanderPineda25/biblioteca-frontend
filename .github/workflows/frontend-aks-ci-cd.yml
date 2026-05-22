@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - main
+      - master
   workflow_dispatch:
 
 env:
   NAMESPACE: biblioteca
-  IMAGE_NAME: biblioteca-frontend
+  KUSTOMIZE_OVERLAY: k8s/overlays/aks-no-domain
+  IMAGE_NAME: biblioteca/frontend
 
 jobs:
   validate:
@@ -42,7 +44,7 @@ jobs:
         uses: azure/setup-kubectl@v4
 
       - name: Render Kustomize
-        run: kubectl kustomize k8s/overlays/aks > /tmp/frontend-rendered.yaml
+        run: kubectl kustomize "$KUSTOMIZE_OVERLAY" > /tmp/frontend-rendered.yaml
 
   build-and-deploy:
     name: Build image and deploy to AKS
@@ -82,7 +84,7 @@ jobs:
       - name: Deploy frontend manifests
         run: |
           kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
-          kubectl apply -k k8s/overlays/aks
+          kubectl apply -k "$KUSTOMIZE_OVERLAY"
 
       - name: Update frontend image
         run: |
