@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: biblioteca-frontend
+  labels:
+    app: biblioteca-frontend
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: biblioteca.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: biblioteca-frontend
+                port:
+                  number: 80

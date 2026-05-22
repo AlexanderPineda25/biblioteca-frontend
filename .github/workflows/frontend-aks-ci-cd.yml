@@ -1,0 +1,94 @@
+name: Frontend AKS CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  NAMESPACE: biblioteca
+  IMAGE_NAME: biblioteca-frontend
+
+jobs:
+  validate:
+    name: Validate frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        env:
+          VITE_AUTH_SERVICE_URL: ${{ vars.VITE_AUTH_SERVICE_URL || 'https://api.biblioteca.example.com' }}
+          VITE_CATALOG_SERVICE_URL: ${{ vars.VITE_CATALOG_SERVICE_URL || 'https://api.biblioteca.example.com' }}
+          VITE_CHATBOT_SERVICE_URL: ${{ vars.VITE_CHATBOT_SERVICE_URL || 'https://api.biblioteca.example.com' }}
+        run: npm run build
+
+      - name: Validate Kubernetes manifests
+        uses: azure/setup-kubectl@v4
+
+      - name: Render Kustomize
+        run: kubectl kustomize k8s/overlays/aks > /tmp/frontend-rendered.yaml
+
+  build-and-deploy:
+    name: Build image and deploy to AKS
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Login to Azure Container Registry
+        run: az acr login --name "${{ vars.ACR_NAME }}"
+
+      - name: Build and push frontend image
+        run: |
+          IMAGE="${{ vars.ACR_LOGIN_SERVER }}/${IMAGE_NAME}:${{ github.sha }}"
+          docker build \
+            --build-arg VITE_AUTH_SERVICE_URL="${{ vars.VITE_AUTH_SERVICE_URL }}" \
+            --build-arg VITE_CATALOG_SERVICE_URL="${{ vars.VITE_CATALOG_SERVICE_URL }}" \
+            --build-arg VITE_CHATBOT_SERVICE_URL="${{ vars.VITE_CHATBOT_SERVICE_URL }}" \
+            -t "$IMAGE" .
+          docker push "$IMAGE"
+
+      - name: Get AKS credentials
+        run: |
+          az aks get-credentials \
+            --resource-group "${{ vars.AKS_RESOURCE_GROUP }}" \
+            --name "${{ vars.AKS_CLUSTER_NAME }}" \
+            --overwrite-existing
+
+      - name: Deploy frontend manifests
+        run: |
+          kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
+          kubectl apply -k k8s/overlays/aks
+
+      - name: Update frontend image
+        run: |
+          kubectl set image deployment/biblioteca-frontend \
+            frontend="${{ vars.ACR_LOGIN_SERVER }}/${IMAGE_NAME}:${{ github.sha }}" \
+            --namespace "$NAMESPACE"
+
+      - name: Wait for rollout
+        run: kubectl rollout status deployment/biblioteca-frontend --namespace "$NAMESPACE" --timeout=180s

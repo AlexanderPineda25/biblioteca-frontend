@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: biblioteca-frontend
+spec:
+  rules:
+    - host: biblioteca.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: biblioteca-frontend
+                port:
+                  number: 80
