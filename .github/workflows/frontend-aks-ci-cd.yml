@@ -44,7 +44,10 @@ jobs:
         uses: azure/setup-kubectl@v4
 
       - name: Render Kustomize
-        run: kubectl kustomize "$KUSTOMIZE_OVERLAY" > /tmp/frontend-rendered.yaml
+        run: |
+          OVERLAY="$(echo "$KUSTOMIZE_OVERLAY" | xargs)"
+          echo "Using overlay: '$OVERLAY'"
+          kubectl kustomize "$OVERLAY" > /tmp/frontend-rendered.yaml
 
   build-and-deploy:
     name: Build image and deploy to AKS
@@ -102,9 +105,11 @@ jobs:
 
       - name: Deploy frontend manifests
         run: |
+          OVERLAY="$(echo "$KUSTOMIZE_OVERLAY" | xargs)"
           kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
           MANIFEST=/tmp/frontend-rendered.yaml
-          kubectl kustomize "$KUSTOMIZE_OVERLAY" > "$MANIFEST"
+          echo "Using overlay: '$OVERLAY'"
+          kubectl kustomize "$OVERLAY" > "$MANIFEST"
           sed -i "s|image: .*frontend:.*|image: ${{ vars.ACR_LOGIN_SERVER }}/${IMAGE_NAME}:${{ github.sha }}|" "$MANIFEST"
           kubectl apply -f "$MANIFEST"
 
@@ -125,7 +130,7 @@ jobs:
         run: |
           echo "Waiting for ingress to be ready..."
           sleep 10
-          PUBLIC_URL="${{ vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}"
+          PUBLIC_URL="$(echo "${{ vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}" | xargs)"
           echo "Checking $PUBLIC_URL ..."
           for i in {1..12}; do
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PUBLIC_URL" 2>/dev/null || echo "000")
