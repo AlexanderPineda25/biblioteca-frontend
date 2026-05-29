@@ -94,6 +94,7 @@ export default function RegisterPage() {
                         <label className="block text-sm text-slate-700">
                             <span className="font-medium">Usuario</span>
                             <input
+                                id="reg-username"
                                 type="text"
                                 value={form.username}
                                 onChange={handleChange('username')}
@@ -106,6 +107,7 @@ export default function RegisterPage() {
                         <label className="block text-sm text-slate-700">
                             <span className="font-medium">Email</span>
                             <input
+                                id="reg-email"
                                 type="email"
                                 value={form.email}
                                 onChange={handleChange('email')}
@@ -119,6 +121,7 @@ export default function RegisterPage() {
                             <span className="font-medium">Contrasena</span>
                             <div className="mt-2 flex rounded-md border border-slate-300 bg-white focus-within:border-university-500 focus-within:ring-2 focus-within:ring-university-100">
                                 <input
+                                    id="reg-password"
                                     type={showPassword ? 'text' : 'password'}
                                     value={form.password}
                                     onChange={handleChange('password')}

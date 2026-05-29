@@ -97,6 +97,7 @@ export default function LoginPage() {
                         <label className="block text-sm text-slate-700">
                             <span className="font-medium">Usuario o correo</span>
                             <input
+                                id="usernameOrEmail"
                                 value={credentials.usernameOrEmail}
                                 onChange={handleChange('usernameOrEmail')}
                                 autoComplete="username"
@@ -109,6 +110,7 @@ export default function LoginPage() {
                             <span className="font-medium">Contrasena</span>
                             <div className="mt-2 flex rounded-md border border-slate-300 bg-white focus-within:border-university-500 focus-within:ring-2 focus-within:ring-university-100">
                                 <input
+                                    id="password"
                                     type={showPassword ? 'text' : 'password'}
                                     value={credentials.password}
                                     onChange={handleChange('password')}
