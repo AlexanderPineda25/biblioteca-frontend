@@ -58,7 +58,6 @@ export default function LoginPage() {
         setServerError('');
         try {
             await login(credentials);
-            navigate('/catalog');
         } catch (error) {
             setServerError(getApiErrorMessage(error, 'No se pudo iniciar sesion.'));
         } finally {
