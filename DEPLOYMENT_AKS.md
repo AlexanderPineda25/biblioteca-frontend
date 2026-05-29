@@ -11,15 +11,15 @@ Este repositorio despliega el frontend React como contenedor Nginx en AKS.
 
 ## Variables de build
 
-Vite inyecta URLs en tiempo de build:
+Vite inyecta URLs en tiempo de build. Para produccion con DuckDNS + SSL:
 
 ```env
-VITE_AUTH_SERVICE_URL=https://api.biblioteca.example.com
-VITE_CATALOG_SERVICE_URL=https://api.biblioteca.example.com
-VITE_CHATBOT_SERVICE_URL=https://api.biblioteca.example.com
+VITE_AUTH_SERVICE_URL=https://bibliotechu.duckdns.org
+VITE_CATALOG_SERVICE_URL=https://bibliotechu.duckdns.org
+VITE_CHATBOT_SERVICE_URL=https://bibliotechu.duckdns.org
 ```
 
-Para la demo actual sin dominio:
+Sin dominio (IP directa):
 
 ```env
 VITE_AUTH_SERVICE_URL=http://52.158.169.2
@@ -38,9 +38,9 @@ $TAG="manual"
 az acr login --name acrbiblioalex25
 
 docker build `
-  --build-arg VITE_AUTH_SERVICE_URL="http://52.158.169.2" `
-  --build-arg VITE_CATALOG_SERVICE_URL="http://52.158.169.2" `
-  --build-arg VITE_CHATBOT_SERVICE_URL="http://52.158.169.2" `
+  --build-arg VITE_AUTH_SERVICE_URL="https://bibliotechu.duckdns.org" `
+  --build-arg VITE_CATALOG_SERVICE_URL="https://bibliotechu.duckdns.org" `
+  --build-arg VITE_CHATBOT_SERVICE_URL="https://bibliotechu.duckdns.org" `
   -t "$ACR/biblioteca/frontend:$TAG" .
 
 docker push "$ACR/biblioteca/frontend:$TAG"
@@ -69,7 +69,7 @@ kubectl rollout status deployment/biblioteca-frontend -n biblioteca
 kubectl get pods -n biblioteca -l app=biblioteca-frontend
 kubectl get ingress -n biblioteca
 kubectl logs deployment/biblioteca-frontend -n biblioteca --tail=50
-Invoke-WebRequest -UseBasicParsing "http://52.158.169.2/"
+Invoke-WebRequest -UseBasicParsing "https://bibliotechu.duckdns.org/"
 ```
 
 Port-forward temporal:
@@ -99,16 +99,16 @@ Para redeploys completos se recomienda el metodo renderizado de la seccion anter
 
 El workflow `.github/workflows/frontend-aks-ci-cd.yml` escucha `main` y `master`, usa el overlay `k8s/overlays/aks-no-domain` y publica la imagen como `ACR_LOGIN_SERVER/biblioteca/frontend:<sha>`.
 
-Variables requeridas en GitHub:
+Variables requeridas en GitHub (valores actuales con SSL):
 
 ```text
 AKS_RESOURCE_GROUP=rg-biblioteca-aks-edu
 AKS_CLUSTER_NAME=aks-biblioteca-edu
 ACR_NAME=acrbiblioalex25
 ACR_LOGIN_SERVER=acrbiblioalex25.azurecr.io
-VITE_AUTH_SERVICE_URL=http://52.158.169.2
-VITE_CATALOG_SERVICE_URL=http://52.158.169.2
-VITE_CHATBOT_SERVICE_URL=http://52.158.169.2
+VITE_AUTH_SERVICE_URL=https://bibliotechu.duckdns.org
+VITE_CATALOG_SERVICE_URL=https://bibliotechu.duckdns.org
+VITE_CHATBOT_SERVICE_URL=https://bibliotechu.duckdns.org
 ```
 
 Secret requerido:
