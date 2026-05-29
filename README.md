@@ -73,9 +73,7 @@ docker run -p 4173:80 biblioteca-frontend:latest
 
 Documentacion del repo frontend:
 
-- Guia AKS: [DEPLOYMENT_AKS.md](DEPLOYMENT_AKS.md)
-- Pipeline CI/CD: [CI_CD.md](CI_CD.md)
-- Tecnologias: [TECHNOLOGIES.md](TECHNOLOGIES.md)
+- Despliegue y CI/CD: [DEPLOYMENT.md](DEPLOYMENT.md)
 
 Manifiestos:
 

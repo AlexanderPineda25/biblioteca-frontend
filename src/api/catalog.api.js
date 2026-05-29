@@ -1,25 +1,20 @@
 import axios from 'axios';
+import { correlationIdInterceptor } from './correlation-id.js';
 
 const catalogApi = axios.create({
     baseURL: import.meta.env.VITE_CATALOG_SERVICE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true,
 });
 
-catalogApi.interceptors.request.use((config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+catalogApi.interceptors.request.use(correlationIdInterceptor);
 
 catalogApi.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            localStorage.removeItem('accessToken');
             window.location.href = '/login';
         }
         return Promise.reject(error);

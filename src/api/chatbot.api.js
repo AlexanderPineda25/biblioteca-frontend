@@ -1,25 +1,20 @@
 import axios from 'axios';
+import { correlationIdInterceptor } from './correlation-id.js';
 
 const chatbotApi = axios.create({
     baseURL: import.meta.env.VITE_CHATBOT_SERVICE_URL || 'http://localhost:3003',
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true,
 });
 
-chatbotApi.interceptors.request.use((config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+chatbotApi.interceptors.request.use(correlationIdInterceptor);
 
 chatbotApi.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            localStorage.removeItem('accessToken');
             window.location.href = '/login';
         }
         return Promise.reject(error);
