@@ -35,10 +35,14 @@ jobs:
 
       - name: Build
         env:
-          VITE_AUTH_SERVICE_URL: ${{ vars.VITE_AUTH_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
-          VITE_CATALOG_SERVICE_URL: ${{ vars.VITE_CATALOG_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
-          VITE_CHATBOT_SERVICE_URL: ${{ vars.VITE_CHATBOT_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
-        run: npm run build
+          VITE_AUTH_RAW: ${{ vars.VITE_AUTH_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
+          VITE_CATALOG_RAW: ${{ vars.VITE_CATALOG_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
+          VITE_CHATBOT_RAW: ${{ vars.VITE_CHATBOT_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
+        run: |
+          VITE_AUTH_SERVICE_URL="$(printf '%s' "$VITE_AUTH_RAW" | tr -d '\n\r')"
+          VITE_CATALOG_SERVICE_URL="$(printf '%s' "$VITE_CATALOG_RAW" | tr -d '\n\r')"
+          VITE_CHATBOT_SERVICE_URL="$(printf '%s' "$VITE_CHATBOT_RAW" | tr -d '\n\r')"
+          npm run build
 
       - name: Validate Kubernetes manifests
         uses: azure/setup-kubectl@v4
@@ -94,12 +98,22 @@ jobs:
         run: az acr login --name "$CLEAN_ACR_NAME"
 
       - name: Build and push frontend image
+        env:
+          VITE_AUTH_RAW: ${{ vars.VITE_AUTH_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
+          VITE_CATALOG_RAW: ${{ vars.VITE_CATALOG_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
+          VITE_CHATBOT_RAW: ${{ vars.VITE_CHATBOT_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
         run: |
+          VITE_AUTH="$(printf '%s' "$VITE_AUTH_RAW" | tr -d '\n\r')"
+          VITE_CATALOG="$(printf '%s' "$VITE_CATALOG_RAW" | tr -d '\n\r')"
+          VITE_CHATBOT="$(printf '%s' "$VITE_CHATBOT_RAW" | tr -d '\n\r')"
           IMAGE="${CLEAN_ACR_LOGIN}/${IMAGE_NAME}:${{ github.sha }}"
+          echo "VITE_AUTH_SERVICE_URL=[$VITE_AUTH]"
+          echo "VITE_CATALOG_SERVICE_URL=[$VITE_CATALOG]"
+          echo "VITE_CHATBOT_SERVICE_URL=[$VITE_CHATBOT]"
           docker build \
-            --build-arg VITE_AUTH_SERVICE_URL="${{ vars.VITE_AUTH_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}" \
-            --build-arg VITE_CATALOG_SERVICE_URL="${{ vars.VITE_CATALOG_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}" \
-            --build-arg VITE_CHATBOT_SERVICE_URL="${{ vars.VITE_CHATBOT_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}" \
+            --build-arg VITE_AUTH_SERVICE_URL="$VITE_AUTH" \
+            --build-arg VITE_CATALOG_SERVICE_URL="$VITE_CATALOG" \
+            --build-arg VITE_CHATBOT_SERVICE_URL="$VITE_CHATBOT" \
             -t "$IMAGE" .
           docker push "$IMAGE"
 
