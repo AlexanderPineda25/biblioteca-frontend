@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from './hooks/useAuth.js';
 import Navbar from './components/common/NavBar.jsx';
 import ProtectedRoute from './components/common/ProtectedRoute.jsx';
@@ -10,8 +11,14 @@ import CatalogPage from './pages/CatalogPage.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 
 function App() {
-  const { isAuthenticated, user } = useAuth();
-  console.log('[App] isAuthenticated:', isAuthenticated, 'user:', user);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/catalog', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="min-h-screen bg-slate-50">
