@@ -1,25 +1,6 @@
-import axios from 'axios';
-import { correlationIdInterceptor } from './correlation-id.js';
+import { createApiClient } from './createApiClient.js';
 
-const usersApi = axios.create({
-    baseURL: import.meta.env.VITE_AUTH_SERVICE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    withCredentials: true,
-});
-
-usersApi.interceptors.request.use(correlationIdInterceptor);
-
-usersApi.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            window.dispatchEvent(new CustomEvent('auth:unauthorized'));
-        }
-        return Promise.reject(error);
-    }
-);
+const usersApi = createApiClient(import.meta.env.VITE_AUTH_SERVICE_URL);
 
 export const getUsers = async () => {
     const response = await usersApi.get('/api/users');

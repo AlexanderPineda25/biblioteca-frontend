@@ -1,25 +1,6 @@
-import axios from 'axios';
-import { correlationIdInterceptor } from './correlation-id.js';
+import { createApiClient } from './createApiClient.js';
 
-const catalogApi = axios.create({
-    baseURL: import.meta.env.VITE_CATALOG_SERVICE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    withCredentials: true,
-});
-
-catalogApi.interceptors.request.use(correlationIdInterceptor);
-
-catalogApi.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            window.dispatchEvent(new CustomEvent('auth:unauthorized'));
-        }
-        return Promise.reject(error);
-    }
-);
+const catalogApi = createApiClient(import.meta.env.VITE_CATALOG_SERVICE_URL);
 
 const buildQuery = (params) => {
     const query = new URLSearchParams();

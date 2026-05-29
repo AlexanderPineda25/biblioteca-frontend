@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 import Spinner from '../components/common/Spinner.jsx';
 import { getApiErrorMessage } from '../utils/apiError.js';
@@ -24,6 +24,7 @@ const EyeIcon = ({ hidden }) => (
 
 export default function LoginPage() {
     const { login } = useAuth();
+    const navigate = useNavigate();
     const location = useLocation();
     const [credentials, setCredentials] = useState({ usernameOrEmail: '', password: '' });
     const [errors, setErrors] = useState({});
@@ -57,6 +58,7 @@ export default function LoginPage() {
         setServerError('');
         try {
             await login(credentials);
+            navigate('/catalog');
         } catch (error) {
             setServerError(getApiErrorMessage(error, 'No se pudo iniciar sesion.'));
         } finally {

@@ -1,25 +1,6 @@
-import axios from 'axios';
-import { correlationIdInterceptor } from './correlation-id.js';
+import { createApiClient } from './createApiClient.js';
 
-const rolesApi = axios.create({
-    baseURL: import.meta.env.VITE_AUTH_SERVICE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    withCredentials: true,
-});
-
-rolesApi.interceptors.request.use(correlationIdInterceptor);
-
-rolesApi.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            window.dispatchEvent(new CustomEvent('auth:unauthorized'));
-        }
-        return Promise.reject(error);
-    }
-);
+const rolesApi = createApiClient(import.meta.env.VITE_AUTH_SERVICE_URL);
 
 export const getRoles = async () => {
     const response = await rolesApi.get('/api/roles');

@@ -1,76 +1,14 @@
 import { Loader2, MessageCircle, Send, X } from 'lucide-react';
-import { useMemo, useRef, useState } from 'react';
-import { sendChatMessage } from '../../api/chatbot.api.js';
-import { getApiErrorMessage } from '../../utils/apiError.js';
-
-const initialMessage = {
-    role: 'assistant',
-    content: 'Hola. Soy el asistente IA de Biblioteca U. Puedo ayudarte con el catalogo, recomendaciones y dudas sobre la plataforma.',
-};
+import { useChatbot } from '../../hooks/useChatbot.js';
 
 export default function ChatbotWidget() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState([initialMessage]);
-    const [draft, setDraft] = useState('');
-    const [conversationId, setConversationId] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [lastProvider, setLastProvider] = useState('');
-    const inputRef = useRef(null);
-
-    const conversationHistory = useMemo(() => (
-        messages
-            .filter((message) => message !== initialMessage)
-            .map(({ role, content }) => ({ role, content }))
-            .slice(-8)
-    ), [messages]);
-
-    const openChat = () => {
-        setIsOpen(true);
-        window.setTimeout(() => inputRef.current?.focus(), 80);
-    };
-
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        const text = draft.trim();
-        if (!text || loading) return;
-
-        const nextMessages = [...messages, { role: 'user', content: text }];
-        setMessages(nextMessages);
-        setDraft('');
-        setError('');
-        setLoading(true);
-
-        try {
-            const response = await sendChatMessage({
-                message: text,
-                conversationId,
-                history: conversationHistory,
-            });
-            const data = response.data;
-            setConversationId(data.conversationId);
-            setLastProvider(`${data.provider}${data.model ? ` / ${data.model}` : ''}`);
-            setMessages((current) => [
-                ...current,
-                { role: 'assistant', content: data.reply || 'No pude generar una respuesta en este momento.' },
-            ]);
-        } catch (requestError) {
-            setError(getApiErrorMessage(requestError, 'No se pudo consultar el chatbot.'));
-            setMessages((current) => [
-                ...current,
-                { role: 'assistant', content: 'Tu mensaje llego al front, pero el servicio de chatbot no respondio. Intenta de nuevo en unos segundos.' },
-            ]);
-        } finally {
-            setLoading(false);
-            window.setTimeout(() => inputRef.current?.focus(), 80);
-        }
-    };
+    const { isOpen, open, close, messages, draft, setDraft, loading, error, lastProvider, inputRef, submit: handleSubmit } = useChatbot();
 
     if (!isOpen) {
         return (
             <button
                 type="button"
-                onClick={openChat}
+                onClick={open}
                 className="fixed bottom-5 right-5 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-university-700 text-white shadow-lg transition hover:bg-university-800 focus:outline-none focus:ring-4 focus:ring-university-200"
                 aria-label="Abrir chatbot IA"
                 title="Abrir chatbot IA"
@@ -89,7 +27,7 @@ export default function ChatbotWidget() {
                 </div>
                 <button
                     type="button"
-                    onClick={() => setIsOpen(false)}
+                    onClick={close}
                     className="inline-flex h-9 w-9 items-center justify-center rounded-md text-university-50 transition hover:bg-university-800 focus:outline-none focus:ring-2 focus:ring-white/70"
                     aria-label="Cerrar chatbot"
                     title="Cerrar"

@@ -1,15 +1,6 @@
-import axios from 'axios';
-import { correlationIdInterceptor } from './correlation-id.js';
+import { createApiClient } from './createApiClient.js';
 
-const authApi = axios.create({
-    baseURL: import.meta.env.VITE_AUTH_SERVICE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    withCredentials: true,
-});
-
-authApi.interceptors.request.use(correlationIdInterceptor);
+const authApi = createApiClient(import.meta.env.VITE_AUTH_SERVICE_URL);
 
 export const login = async (credentials) => {
     const response = await authApi.post('/api/auth/login', credentials);

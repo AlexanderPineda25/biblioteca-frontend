@@ -1,40 +1,20 @@
-import { ArrowLeft, ArrowRight, LayoutDashboard, Search, Sparkles } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { ArrowLeft, ArrowRight, LayoutDashboard, Sparkles, Search } from 'lucide-react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import BookCard from '../components/books/BookCard.jsx';
 import BookFilters from '../components/books/BookFilters.jsx';
 import Spinner from '../components/common/Spinner.jsx';
-import { getAiRecommendations } from '../api/catalog.api.js';
 import { useAuth } from '../hooks/useAuth.js';
 import { useBooks } from '../hooks/useBooks.js';
+import { useAiRecommendations } from '../hooks/useAiRecommendations.js';
 import { canManageBooks } from '../utils/roles.js';
-import { getApiErrorMessage } from '../utils/apiError.js';
 
 export default function CatalogPage() {
     const { user } = useAuth();
     const { books, filters, loading, error, page, pagination, updateFilters, setPage } = useBooks({ title: '', author: '', category: '', available: false });
+    const { interest, setInterest, result: aiResult, loading: aiLoading, error: aiError, submit: handleAiSubmit } = useAiRecommendations();
     const canManage = useMemo(() => canManageBooks(user?.roles || []), [user?.roles]);
     const totalPages = Math.max(1, Math.ceil(pagination.total / pagination.limit));
-    const [aiInterest, setAiInterest] = useState('');
-    const [aiResult, setAiResult] = useState(null);
-    const [aiLoading, setAiLoading] = useState(false);
-    const [aiError, setAiError] = useState('');
-
-    const handleAiSubmit = async (event) => {
-        event.preventDefault();
-        setAiLoading(true);
-        setAiError('');
-        setAiResult(null);
-
-        try {
-            const response = await getAiRecommendations(aiInterest);
-            setAiResult(response.data);
-        } catch (requestError) {
-            setAiError(getApiErrorMessage(requestError, 'No se pudo consultar el servicio de IA.'));
-        } finally {
-            setAiLoading(false);
-        }
-    };
 
     return (
         <div className="mx-auto max-w-7xl space-y-6">
@@ -68,8 +48,8 @@ export default function CatalogPage() {
                         </span>
                         <input
                             type="text"
-                            value={aiInterest}
-                            onChange={(event) => setAiInterest(event.target.value)}
+                            value={interest}
+                            onChange={(event) => setInterest(event.target.value)}
                             minLength={4}
                             maxLength={300}
                             required
