@@ -45,7 +45,7 @@ jobs:
 
       - name: Render Kustomize
         run: |
-          OVERLAY="$(echo "$KUSTOMIZE_OVERLAY" | xargs)"
+          OVERLAY="$(printf '%s' "$KUSTOMIZE_OVERLAY" | tr -d '\n\r')"
           echo "Using overlay: '$OVERLAY'"
           kubectl kustomize "$OVERLAY" > /tmp/frontend-rendered.yaml
 
@@ -105,7 +105,7 @@ jobs:
 
       - name: Deploy frontend manifests
         run: |
-          OVERLAY="$(echo "$KUSTOMIZE_OVERLAY" | xargs)"
+          OVERLAY="$(printf '%s' "$KUSTOMIZE_OVERLAY" | tr -d '\n\r')"
           kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
           MANIFEST=/tmp/frontend-rendered.yaml
           echo "Using overlay: '$OVERLAY'"
@@ -130,7 +130,7 @@ jobs:
         run: |
           echo "Waiting for ingress to be ready..."
           sleep 10
-          PUBLIC_URL="$(echo "${{ vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}" | xargs)"
+          PUBLIC_URL="$(printf '%s' "${{ vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}" | tr -d '\n\r')"
           echo "Checking $PUBLIC_URL ..."
           for i in {1..12}; do
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PUBLIC_URL" 2>/dev/null || echo "000")
