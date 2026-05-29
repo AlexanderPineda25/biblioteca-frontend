@@ -2,9 +2,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: biblioteca-frontend
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   rules:
-    - host: biblioteca.example.com
+    - host: bibliotechu.duckdns.org
       http:
         paths:
           - path: /
@@ -14,3 +17,7 @@ spec:
                 name: biblioteca-frontend
                 port:
                   number: 80
+  tls:
+    - hosts:
+        - bibliotechu.duckdns.org
+      secretName: bibliotechu-frontend-tls

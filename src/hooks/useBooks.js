@@ -9,29 +9,46 @@ export const useBooks = (initialFilters = {}) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0 });
-
-    const fetchBooks = useCallback(async (newFilters = filters, newPage = page) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await catalogApi.getBooks(newFilters, newPage, pagination.limit);
-            const booksList = response.data || [];
-            setBooks(booksList);
-            setPagination({
-                page: response.pagination?.page || newPage,
-                limit: response.pagination?.limit || pagination.limit,
-                total: response.pagination?.total || 0,
-            });
-        } catch (fetchError) {
-            setError(getApiErrorMessage(fetchError, 'Error al cargar libros'));
-        } finally {
-            setLoading(false);
-        }
-    }, [filters, page, pagination.limit]);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
-        fetchBooks(filters, page);
-    }, [fetchBooks, filters, page]);
+        let cancelled = false;
+
+        const controller = new AbortController();
+
+        queueMicrotask(() => {
+            if (!cancelled) setLoading(true);
+            if (!cancelled) setError(null);
+        });
+
+        catalogApi.getBooks(filters, page, pagination.limit)
+            .then(response => {
+                if (cancelled) return;
+                const booksList = response.data || [];
+                setBooks(booksList);
+                setPagination({
+                    page: response.pagination?.page || page,
+                    limit: response.pagination?.limit || pagination.limit,
+                    total: response.pagination?.total || 0,
+                });
+            })
+            .catch(fetchError => {
+                if (cancelled) return;
+                setError(getApiErrorMessage(fetchError, 'Error al cargar libros'));
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+        };
+    }, [filters, page, pagination.limit, refreshKey]);
+
+    const fetchBooks = useCallback(() => {
+        setRefreshKey(k => k + 1);
+    }, []);
 
     const updateFilters = (nextFilters) => {
         setFilters(nextFilters);
@@ -39,20 +56,16 @@ export const useBooks = (initialFilters = {}) => {
     };
 
     const deleteBook = async (id) => {
-        setLoading(true);
         setError(null);
         try {
             await catalogApi.deleteBook(id);
-            await fetchBooks(filters, page);
+            fetchBooks();
         } catch (deleteError) {
             setError(getApiErrorMessage(deleteError, 'Error al eliminar libro'));
-        } finally {
-            setLoading(false);
         }
     };
 
     const saveBook = async (book, id) => {
-        setLoading(true);
         setError(null);
         try {
             if (id) {
@@ -60,12 +73,10 @@ export const useBooks = (initialFilters = {}) => {
             } else {
                 await catalogApi.createBook(book);
             }
-            await fetchBooks(filters, page);
+            fetchBooks();
         } catch (saveError) {
             setError(getApiErrorMessage(saveError, 'Error al guardar libro'));
             throw saveError;
-        } finally {
-            setLoading(false);
         }
     };
 

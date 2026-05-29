@@ -9,7 +9,7 @@ on:
 
 env:
   NAMESPACE: biblioteca
-  KUSTOMIZE_OVERLAY: k8s/overlays/aks-no-domain
+  KUSTOMIZE_OVERLAY: ${{ vars.KUSTOMIZE_OVERLAY || 'k8s/overlays/aks-no-domain' }}
   IMAGE_NAME: biblioteca/frontend
 
 jobs:
@@ -35,9 +35,9 @@ jobs:
 
       - name: Build
         env:
-          VITE_AUTH_SERVICE_URL: ${{ vars.VITE_AUTH_SERVICE_URL || vars.PUBLIC_BASE_URL || 'http://52.158.169.2' }}
-          VITE_CATALOG_SERVICE_URL: ${{ vars.VITE_CATALOG_SERVICE_URL || vars.PUBLIC_BASE_URL || 'http://52.158.169.2' }}
-          VITE_CHATBOT_SERVICE_URL: ${{ vars.VITE_CHATBOT_SERVICE_URL || vars.PUBLIC_BASE_URL || 'http://52.158.169.2' }}
+          VITE_AUTH_SERVICE_URL: ${{ vars.VITE_AUTH_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
+          VITE_CATALOG_SERVICE_URL: ${{ vars.VITE_CATALOG_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
+          VITE_CHATBOT_SERVICE_URL: ${{ vars.VITE_CHATBOT_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
         run: npm run build
 
       - name: Validate Kubernetes manifests
@@ -87,9 +87,9 @@ jobs:
         run: |
           IMAGE="${{ vars.ACR_LOGIN_SERVER }}/${IMAGE_NAME}:${{ github.sha }}"
           docker build \
-            --build-arg VITE_AUTH_SERVICE_URL="${{ vars.VITE_AUTH_SERVICE_URL || vars.PUBLIC_BASE_URL || 'http://52.158.169.2' }}" \
-            --build-arg VITE_CATALOG_SERVICE_URL="${{ vars.VITE_CATALOG_SERVICE_URL || vars.PUBLIC_BASE_URL || 'http://52.158.169.2' }}" \
-            --build-arg VITE_CHATBOT_SERVICE_URL="${{ vars.VITE_CHATBOT_SERVICE_URL || vars.PUBLIC_BASE_URL || 'http://52.158.169.2' }}" \
+            --build-arg VITE_AUTH_SERVICE_URL="${{ vars.VITE_AUTH_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}" \
+            --build-arg VITE_CATALOG_SERVICE_URL="${{ vars.VITE_CATALOG_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}" \
+            --build-arg VITE_CHATBOT_SERVICE_URL="${{ vars.VITE_CHATBOT_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}" \
             -t "$IMAGE" .
           docker push "$IMAGE"
 
@@ -110,3 +110,31 @@ jobs:
 
       - name: Wait for rollout
         run: kubectl rollout status deployment/biblioteca-frontend --namespace "$NAMESPACE" --timeout=180s
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "❌ Rollout failed. Initiating rollback..."
+          kubectl rollout undo deployment/biblioteca-frontend --namespace "$NAMESPACE" 2>/dev/null || true
+          echo "⏳ Waiting for rollback to complete..."
+          kubectl rollout status deployment/biblioteca-frontend --namespace "$NAMESPACE" --timeout=180s 2>/dev/null || true
+          echo "✅ Rollback completed (or attempted)"
+          echo "ROLLBACK_TRIGGERED=true" >> $GITHUB_ENV
+
+      - name: Health check post-deploy
+        run: |
+          echo "Waiting for ingress to be ready..."
+          sleep 10
+          PUBLIC_URL="${{ vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}"
+          echo "Checking $PUBLIC_URL ..."
+          for i in {1..12}; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PUBLIC_URL" 2>/dev/null || echo "000")
+            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ] || [ "$HTTP_CODE" = "301" ]; then
+              echo "✅ Frontend health check passed (HTTP $HTTP_CODE)"
+              exit 0
+            fi
+            echo "  Attempt $i: HTTP $HTTP_CODE, retrying..."
+            sleep 10
+          done
+          echo "❌ Frontend health check failed after 12 attempts"
+          exit 1

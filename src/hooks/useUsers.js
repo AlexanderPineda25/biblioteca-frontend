@@ -5,40 +5,49 @@ export const useUsers = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
-    const fetchUsers = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await usersApi.getUsers();
-            // Manejar diferentes formatos de respuesta del servidor
-            let usersList = [];
-
-            if (response && response.data && Array.isArray(response.data)) {
-                // Formato: { data: [...] }
-                usersList = response.data;
-            } else if (Array.isArray(response)) {
-                // Respuesta directa como array
-                usersList = response;
-            }
-
-            setUsers(usersList);
-        } catch (fetchError) {
-            setError(fetchError.response?.data?.message || fetchError.message || 'Error al cargar usuarios');
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
-        fetchUsers();
-    }, [fetchUsers]);
+        let cancelled = false;
+
+        queueMicrotask(() => {
+            if (!cancelled) setLoading(true);
+            if (!cancelled) setError(null);
+        });
+
+        usersApi.getUsers()
+            .then(response => {
+                if (cancelled) return;
+                let usersList = [];
+
+                if (response && response.data && Array.isArray(response.data)) {
+                    usersList = response.data;
+                } else if (Array.isArray(response)) {
+                    usersList = response;
+                }
+
+                setUsers(usersList);
+            })
+            .catch(fetchError => {
+                if (cancelled) return;
+                setError(fetchError.response?.data?.message || fetchError.message || 'Error al cargar usuarios');
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+
+        return () => { cancelled = true; };
+    }, [refreshKey]);
+
+    const fetchUsers = useCallback(() => {
+        setRefreshKey(k => k + 1);
+    }, []);
 
     const activateUser = async (id) => {
         setError(null);
         try {
             await usersApi.activateUser(id);
-            await fetchUsers();
+            fetchUsers();
         } catch (activateError) {
             setError(activateError.response?.data?.message || activateError.message || 'Error al activar usuario');
             throw activateError;
@@ -49,7 +58,7 @@ export const useUsers = () => {
         setError(null);
         try {
             await usersApi.deactivateUser(id);
-            await fetchUsers();
+            fetchUsers();
         } catch (deactivateError) {
             setError(deactivateError.response?.data?.message || deactivateError.message || 'Error al desactivar usuario');
             throw deactivateError;
@@ -60,7 +69,7 @@ export const useUsers = () => {
         setError(null);
         try {
             await usersApi.assignRoleToUser(id, roleName);
-            await fetchUsers();
+            fetchUsers();
         } catch (assignError) {
             setError(assignError.response?.data?.message || assignError.message || 'Error al asignar rol');
             throw assignError;
