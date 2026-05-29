@@ -10,7 +10,8 @@ import CatalogPage from './pages/CatalogPage.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 
 function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  console.log('[App] isAuthenticated:', isAuthenticated, 'user:', user);
 
   return (
     <div className="min-h-screen bg-slate-50">
