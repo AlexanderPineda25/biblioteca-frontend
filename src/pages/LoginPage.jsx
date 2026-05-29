@@ -56,14 +56,10 @@ export default function LoginPage() {
         setLoading(true);
         setServerError('');
         try {
-            console.log('[LoginPage] Calling login...');
             await login(credentials);
-            console.log('[LoginPage] login succeeded');
         } catch (error) {
-            console.log('[LoginPage] login failed:', error);
             setServerError(getApiErrorMessage(error, 'No se pudo iniciar sesion.'));
         } finally {
-            console.log('[LoginPage] finally, setLoading(false)');
             setLoading(false);
         }
     };

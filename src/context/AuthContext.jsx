@@ -49,23 +49,16 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (credentials) => {
-        console.log('[AuthContext] login called with:', credentials);
-        const loginResp = await authApi.login(credentials);
-        console.log('[AuthContext] authApi.login succeeded, response:', loginResp);
+        await authApi.login(credentials);
         const data = await authApi.getMe();
-        console.log('[AuthContext] authApi.getMe succeeded, data:', data);
         if (data?.username) {
-            console.log('[AuthContext] calling setUser with username:', data.username);
             setUser({
                 userId: data.userId,
                 username: data.username,
                 email: data.email,
                 roles: data.roles || [],
             });
-        } else {
-            console.log('[AuthContext] data.username is falsy, NOT calling setUser');
         }
-        console.log('[AuthContext] login returning');
         return data;
     };
 
