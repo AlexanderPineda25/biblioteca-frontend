@@ -8,34 +8,50 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const fetchUser = async () => {
-        try {
-            const data = await authApi.getMe();
-            if (data?.username) {
-                setUser({
-                    userId: data.userId,
-                    username: data.username,
-                    email: data.email,
-                    roles: data.roles || [],
-                });
-            } else {
-                setUser(null);
-            }
-        } catch {
-            setUser(null);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        fetchUser();
+        let cancelled = false;
+
+        queueMicrotask(() => {
+            if (!cancelled) setLoading(true);
+        });
+
+        authApi.getMe()
+            .then(data => {
+                if (cancelled) return;
+                if (data?.username) {
+                    setUser({
+                        userId: data.userId,
+                        username: data.username,
+                        email: data.email,
+                        roles: data.roles || [],
+                    });
+                } else {
+                    setUser(null);
+                }
+            })
+            .catch(() => {
+                if (cancelled) return;
+                setUser(null);
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+
+        return () => { cancelled = true; };
     }, []);
 
     const login = async (credentials) => {
         await authApi.login(credentials);
-        await fetchUser();
-        return user;
+        const data = await authApi.getMe();
+        if (data?.username) {
+            setUser({
+                userId: data.userId,
+                username: data.username,
+                email: data.email,
+                roles: data.roles || [],
+            });
+        }
+        return data;
     };
 
     const logout = async () => {
