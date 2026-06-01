@@ -9,15 +9,11 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        let cancelled = false;
+        const controller = new AbortController();
+        const { signal } = controller;
 
-        queueMicrotask(() => {
-            if (!cancelled) setLoading(true);
-        });
-
-        authApi.getMe()
+        authApi.getMe({ signal })
             .then(data => {
-                if (cancelled) return;
                 if (data?.username) {
                     setUser({
                         userId: data.userId,
@@ -29,37 +25,41 @@ export const AuthProvider = ({ children }) => {
                     setUser(null);
                 }
             })
-            .catch(() => {
-                if (cancelled) return;
+            .catch(err => {
+                if (err.name === 'CanceledError' || signal.aborted) return;
                 setUser(null);
             })
             .finally(() => {
-                if (!cancelled) setLoading(false);
+                setLoading(false);
             });
 
-        const onUnauthorized = () => {
-            if (!cancelled) setUser(null);
-        };
+        const onUnauthorized = () => setUser(null);
         window.addEventListener('auth:unauthorized', onUnauthorized);
 
         return () => {
-            cancelled = true;
+            controller.abort();
             window.removeEventListener('auth:unauthorized', onUnauthorized);
         };
     }, []);
 
     const login = async (credentials) => {
-        await authApi.login(credentials);
-        const data = await authApi.getMe();
-        if (data?.username) {
-            setUser({
-                userId: data.userId,
-                username: data.username,
-                email: data.email,
-                roles: data.roles || [],
-            });
+        const controller = new AbortController();
+        try {
+            await authApi.login(credentials, { signal: controller.signal });
+            const data = await authApi.getMe({ signal: controller.signal });
+            if (data?.username) {
+                setUser({
+                    userId: data.userId,
+                    username: data.username,
+                    email: data.email,
+                    roles: data.roles || [],
+                });
+            }
+            return data;
+        } catch (err) {
+            if (err.name === 'CanceledError' || controller.signal.aborted) return;
+            throw err;
         }
-        return data;
     };
 
     const logout = async () => {
