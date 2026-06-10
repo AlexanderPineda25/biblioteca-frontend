@@ -22,7 +22,7 @@ export default function AdminPage() {
 
     if (!canManage) {
         return (
-            <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-red-900 shadow-sm">
+            <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-red-900 shadow-sm transition-colors duration-200 dark:border-red-800/40 dark:bg-red-900/20 dark:text-red-400 dark:shadow-slate-900/50">
                 <h1 className="text-2xl font-semibold">Acceso denegado</h1>
                 <p className="mt-3">Solo Admin o Bibliotecario pueden acceder al panel de administración.</p>
             </div>
@@ -31,17 +31,17 @@ export default function AdminPage() {
 
     return (
         <div className="mx-auto max-w-7xl space-y-6">
-            <div className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-sm">
+            <div className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-sm transition-colors duration-200 dark:border-slate-700 dark:bg-slate-900 dark:shadow-slate-900/50">
                 <div className="bg-gradient-to-r from-slate-900 to-university-600 px-6 py-8 sm:px-10">
-                    <div className="max-w-3xl text-slate-50">
-                        <p className="text-sm uppercase tracking-[0.24em] text-slate-200">Panel administrativo</p>
-                        <h1 className="mt-3 text-4xl font-semibold leading-tight text-slate-50">Gestiona tu biblioteca</h1>
-                        <p className="mt-4 text-sm text-slate-200/80">Administra libros, usuarios y roles desde un panel centralizado.</p>
+                    <div className="max-w-3xl text-slate-50 dark:text-slate-100">
+                        <p className="text-sm uppercase tracking-[0.24em] text-slate-200 dark:text-slate-400">Panel administrativo</p>
+                        <h1 className="mt-3 text-4xl font-semibold leading-tight text-slate-50 dark:text-slate-100">Gestiona tu biblioteca</h1>
+                        <p className="mt-4 text-sm text-slate-200/80 dark:text-slate-400/80">Administra libros, usuarios y roles desde un panel centralizado.</p>
                     </div>
                 </div>
             </div>
 
-            <div className="border-b border-slate-200">
+            <div className="border-b border-slate-200 dark:border-slate-700">
                 <AdminTabs activeTab={activeTab} onChange={setActiveTab} />
             </div>
 
@@ -79,7 +79,7 @@ export default function AdminPage() {
             )}
 
             {!isAdmin && activeTab !== 'Libros' && (
-                <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-amber-900 shadow-sm">
+                <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-amber-900 shadow-sm transition-colors duration-200 dark:border-amber-800/40 dark:bg-amber-900/20 dark:text-amber-400 dark:shadow-slate-900/50">
                     <p className="font-semibold">Solo administradores</p>
                     <p className="mt-2 text-sm">La pestaña "{activeTab}" solo está disponible para administradores.</p>
                 </div>

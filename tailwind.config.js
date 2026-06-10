@@ -1,4 +1,5 @@
 export default {
+    darkMode: 'class',
     content: [
         './index.html',
         './src/**/*.{js,jsx}'
@@ -10,8 +11,9 @@ export default {
                     900: '#7f1d1d',
                     800: '#991b1b',
                     700: '#b91c1c',
+                    600: '#991b1b',
                     500: '#dc2626',
-                    600: '#991b1b'
+                    400: '#ef4444'
                 }
             }
         }

@@ -9,14 +9,25 @@
   background-color: #f8fafc;
 }
 
+.dark {
+  color-scheme: dark;
+  color: #f1f5f9;
+  background-color: #0f172a;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  @apply min-h-screen bg-slate-50 text-slate-900 antialiased;
+  @apply min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
   background-image: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
   background-attachment: fixed;
+}
+
+.dark body,
+body.dark-bg {
+  background-image: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
 }
 
 * {
@@ -46,9 +57,21 @@ body {
   background: rgba(148, 163, 184, 0.5);
 }
 
-/* Input styles focus ring glow */
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.4);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
+}
+
+/* Input premium */
 .input-premium {
   @apply w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-200 placeholder-slate-400 focus:border-university-500 focus:bg-white focus:ring-4 focus:ring-university-500/10;
+}
+
+.dark .input-premium {
+  @apply border-slate-600 bg-slate-800 text-slate-100 placeholder-slate-500 focus:border-university-400 focus:bg-slate-800;
 }
 
 /* Button styles */
@@ -56,10 +79,22 @@ body {
   @apply inline-flex items-center justify-center gap-2 rounded-lg bg-university-700 px-5 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-university-800 hover:shadow-lg hover:shadow-university-700/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
 }
 
+.dark .btn-premium {
+  @apply bg-university-600 hover:bg-university-700;
+}
+
 .btn-premium-secondary {
   @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition-all duration-200 hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
 }
 
+.dark .btn-premium-secondary {
+  @apply border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:border-slate-500;
+}
+
 .btn-premium-danger {
   @apply inline-flex items-center justify-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-semibold text-rose-700 transition-all duration-200 hover:bg-rose-100 hover:border-rose-300 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+.dark .btn-premium-danger {
+  @apply border-rose-800/40 bg-rose-900/20 text-rose-400 hover:bg-rose-900/30 hover:border-rose-700/50;
 }

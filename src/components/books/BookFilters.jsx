@@ -14,14 +14,14 @@ export default function BookFilters({ filters, onChange }) {
     };
 
     return (
-        <section className="mb-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition-colors duration-200 dark:border-slate-700 dark:bg-slate-900 dark:shadow-slate-900/50">
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
                 <div className="space-y-2">
-                    <p className="inline-flex items-center gap-2 text-lg font-semibold text-slate-900">
-                        <Search size={18} className="text-university-700" aria-hidden="true" />
+                    <p className="inline-flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                        <Search size={18} className="text-university-700 dark:text-university-400" aria-hidden="true" />
                         Filtrar libros
                     </p>
-                    <p className="text-sm text-slate-600">Busca por título, autor o categoría y ve solo los libros disponibles.</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Busca por título, autor o categoría y ve solo los libros disponibles.</p>
                 </div>
                 <button
                     type="button"
@@ -34,7 +34,7 @@ export default function BookFilters({ filters, onChange }) {
             </div>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                <label className="space-y-2 text-sm text-slate-700">
+                <label className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
                     Título
                     <input
                         type="text"
@@ -43,7 +43,7 @@ export default function BookFilters({ filters, onChange }) {
                         className="input-premium"
                     />
                 </label>
-                <label className="space-y-2 text-sm text-slate-700">
+                <label className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
                     Autor
                     <input
                         type="text"
@@ -52,7 +52,7 @@ export default function BookFilters({ filters, onChange }) {
                         className="input-premium"
                     />
                 </label>
-                <label className="space-y-2 text-sm text-slate-700">
+                <label className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
                     Categoría
                     <input
                         type="text"
@@ -61,12 +61,12 @@ export default function BookFilters({ filters, onChange }) {
                         className="input-premium"
                     />
                 </label>
-                <label className="flex items-center gap-3 rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                <label className="flex items-center gap-3 rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300">
                     <input
                         type="checkbox"
                         checked={filters.available || false}
                         onChange={handleCheckbox}
-                        className="h-4 w-4 rounded border-slate-300 text-university-600 focus:ring-university-500"
+                        className="h-4 w-4 rounded border-slate-300 text-university-600 focus:ring-university-500 dark:border-slate-600 dark:text-university-400"
                     />
                     Solo disponibles
                 </label>

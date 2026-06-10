@@ -13,7 +13,7 @@ function App() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 transition-colors duration-200 dark:bg-slate-950">
       <Navbar />
       <main className="px-4 py-6 md:px-8">
         <Routes>
