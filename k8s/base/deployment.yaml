@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: acrbiblioalex25.azurecr.io/biblioteca/frontend:latest
+          image: acrbibliotecaedu.azurecr.io/biblioteca/frontend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
@@ -35,8 +35,8 @@ spec:
             periodSeconds: 20
           resources:
             requests:
-              cpu: 50m
-              memory: 64Mi
+              cpu: 25m
+              memory: 32Mi
             limits:
-              cpu: 250m
-              memory: 192Mi
+              cpu: 50m
+              memory: 96Mi

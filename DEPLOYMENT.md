@@ -38,10 +38,10 @@ Como el frontend es estatico, si cambian estas URLs debes reconstruir la imagen.
 ## Build y push manual
 
 ```powershell
-$ACR="acrbiblioalex25.azurecr.io"
+$ACR="acrbibliotecaedu.azurecr.io"
 $TAG="manual"
 
-az acr login --name acrbiblioalex25
+az acr login --name acrbibliotecaedu
 
 docker build `
   --build-arg VITE_AUTH_SERVICE_URL="https://bibliotechu.duckdns.org" `
@@ -59,7 +59,7 @@ docker push "$ACR/biblioteca/frontend:$TAG"
 Aplica el manifiesto ya renderizado con la imagen final. Esto evita rollouts intermedios con `latest` o imagenes placeholder.
 
 ```powershell
-$ACR="acrbiblioalex25.azurecr.io"
+$ACR="acrbibliotecaedu.azurecr.io"
 $TAG="aks-20260522-063426"
 
 kubectl kustomize k8s/overlays/aks-no-domain |
@@ -174,8 +174,8 @@ Variables requeridas:
 ```text
 AKS_RESOURCE_GROUP=rg-biblioteca-aks-edu
 AKS_CLUSTER_NAME=aks-biblioteca-edu
-ACR_NAME=acrbiblioalex25
-ACR_LOGIN_SERVER=acrbiblioalex25.azurecr.io
+ACR_NAME=acrbibliotecaedu
+ACR_LOGIN_SERVER=acrbibliotecaedu.azurecr.io
 PUBLIC_BASE_URL=http://52.158.169.2
 VITE_AUTH_SERVICE_URL=http://52.158.169.2
 VITE_CATALOG_SERVICE_URL=http://52.158.169.2
@@ -196,8 +196,8 @@ gh auth login
 
 gh variable set AKS_RESOURCE_GROUP --body "rg-biblioteca-aks-edu"
 gh variable set AKS_CLUSTER_NAME --body "aks-biblioteca-edu"
-gh variable set ACR_NAME --body "acrbiblioalex25"
-gh variable set ACR_LOGIN_SERVER --body "acrbiblioalex25.azurecr.io"
+gh variable set ACR_NAME --body "acrbibliotecaedu"
+gh variable set ACR_LOGIN_SERVER --body "acrbibliotecaedu.azurecr.io"
 gh variable set PUBLIC_BASE_URL --body "http://52.158.169.2"
 gh variable set VITE_AUTH_SERVICE_URL --body "http://52.158.169.2"
 gh variable set VITE_CATALOG_SERVICE_URL --body "http://52.158.169.2"

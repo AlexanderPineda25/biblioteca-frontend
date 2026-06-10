@@ -101,7 +101,7 @@ Despliegue AKS verificado:
 
 ```text
 http://52.158.169.2
-ACR: acrbiblioalex25.azurecr.io
+ACR: acrbibliotecaedu.azurecr.io
 Imagen: biblioteca/frontend
 ```
 
