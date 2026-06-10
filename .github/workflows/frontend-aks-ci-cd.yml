@@ -97,6 +97,12 @@ jobs:
       - name: Login to Azure Container Registry
         run: az acr login --name "$CLEAN_ACR_NAME"
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and push frontend image
         env:
           VITE_AUTH_RAW: ${{ vars.VITE_AUTH_SERVICE_URL || vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}
@@ -110,12 +116,13 @@ jobs:
           echo "VITE_AUTH_SERVICE_URL=[$VITE_AUTH]"
           echo "VITE_CATALOG_SERVICE_URL=[$VITE_CATALOG]"
           echo "VITE_CHATBOT_SERVICE_URL=[$VITE_CHATBOT]"
-          docker build \
+          docker buildx build \
+            --platform linux/arm64 \
             --build-arg VITE_AUTH_SERVICE_URL="$VITE_AUTH" \
             --build-arg VITE_CATALOG_SERVICE_URL="$VITE_CATALOG" \
             --build-arg VITE_CHATBOT_SERVICE_URL="$VITE_CHATBOT" \
-            -t "$IMAGE" .
-          docker push "$IMAGE"
+            -t "$IMAGE" \
+            --push .
 
       - name: Get AKS credentials
         run: |
