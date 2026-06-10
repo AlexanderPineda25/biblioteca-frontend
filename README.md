@@ -100,7 +100,7 @@ El pipeline despliega solo `biblioteca-frontend`, sin tocar backend.
 Despliegue AKS verificado:
 
 ```text
-http://52.158.169.2
+https://bibliotechu.duckdns.org
 ACR: acrbibliotecaedu.azurecr.io
 Imagen: biblioteca/frontend
 ```

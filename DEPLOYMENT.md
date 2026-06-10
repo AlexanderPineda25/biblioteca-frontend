@@ -26,9 +26,9 @@ VITE_CHATBOT_SERVICE_URL=https://bibliotechu.duckdns.org
 Sin dominio (IP directa):
 
 ```env
-VITE_AUTH_SERVICE_URL=http://52.158.169.2
-VITE_CATALOG_SERVICE_URL=http://52.158.169.2
-VITE_CHATBOT_SERVICE_URL=http://52.158.169.2
+VITE_AUTH_SERVICE_URL=https://bibliotechu.duckdns.org
+VITE_CATALOG_SERVICE_URL=https://bibliotechu.duckdns.org
+VITE_CHATBOT_SERVICE_URL=https://bibliotechu.duckdns.org
 ```
 
 Como el frontend es estatico, si cambian estas URLs debes reconstruir la imagen.
@@ -140,9 +140,9 @@ VITE_CHATBOT_SERVICE_URL
 Para ingress unico de backend:
 
 ```text
-VITE_AUTH_SERVICE_URL=http://52.158.169.2
-VITE_CATALOG_SERVICE_URL=http://52.158.169.2
-VITE_CHATBOT_SERVICE_URL=http://52.158.169.2
+VITE_AUTH_SERVICE_URL=https://bibliotechu.duckdns.org
+VITE_CATALOG_SERVICE_URL=https://bibliotechu.duckdns.org
+VITE_CHATBOT_SERVICE_URL=https://bibliotechu.duckdns.org
 ```
 
 ### Secrets del repositorio
@@ -176,10 +176,10 @@ AKS_RESOURCE_GROUP=rg-biblioteca-aks-edu
 AKS_CLUSTER_NAME=aks-biblioteca-edu
 ACR_NAME=acrbibliotecaedu
 ACR_LOGIN_SERVER=acrbibliotecaedu.azurecr.io
-PUBLIC_BASE_URL=http://52.158.169.2
-VITE_AUTH_SERVICE_URL=http://52.158.169.2
-VITE_CATALOG_SERVICE_URL=http://52.158.169.2
-VITE_CHATBOT_SERVICE_URL=http://52.158.169.2
+PUBLIC_BASE_URL=https://bibliotechu.duckdns.org
+VITE_AUTH_SERVICE_URL=https://bibliotechu.duckdns.org
+VITE_CATALOG_SERVICE_URL=https://bibliotechu.duckdns.org
+VITE_CHATBOT_SERVICE_URL=https://bibliotechu.duckdns.org
 ```
 
 Secret requerido:
@@ -198,15 +198,15 @@ gh variable set AKS_RESOURCE_GROUP --body "rg-biblioteca-aks-edu"
 gh variable set AKS_CLUSTER_NAME --body "aks-biblioteca-edu"
 gh variable set ACR_NAME --body "acrbibliotecaedu"
 gh variable set ACR_LOGIN_SERVER --body "acrbibliotecaedu.azurecr.io"
-gh variable set PUBLIC_BASE_URL --body "http://52.158.169.2"
-gh variable set VITE_AUTH_SERVICE_URL --body "http://52.158.169.2"
-gh variable set VITE_CATALOG_SERVICE_URL --body "http://52.158.169.2"
-gh variable set VITE_CHATBOT_SERVICE_URL --body "http://52.158.169.2"
+gh variable set PUBLIC_BASE_URL --body "https://bibliotechu.duckdns.org"
+gh variable set VITE_AUTH_SERVICE_URL --body "https://bibliotechu.duckdns.org"
+gh variable set VITE_CATALOG_SERVICE_URL --body "https://bibliotechu.duckdns.org"
+gh variable set VITE_CHATBOT_SERVICE_URL --body "https://bibliotechu.duckdns.org"
 ```
 
 ### Por que se renderiza antes de aplicar
 
-El manifiesto final se genera en `/tmp/frontend-rendered.yaml` con la imagen exacta de la ejecucion. Asi se evita aplicar primero una imagen `latest` y luego cambiarla, reduciendo rollouts y consumo temporal de CPU en el nodo `Standard_D2s_v3`.
+El manifiesto final se genera en `/tmp/frontend-rendered.yaml` con la imagen exacta de la ejecucion. Asi se evita aplicar primero una imagen `latest` y luego cambiarla, reduciendo rollouts y consumo temporal de CPU en el nodo `Standard_B2pls_v2`.
 
 ---
 
