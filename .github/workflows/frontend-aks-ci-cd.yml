@@ -161,7 +161,7 @@ jobs:
           PUBLIC_URL="$(printf '%s' "${{ vars.PUBLIC_BASE_URL || 'https://bibliotechu.duckdns.org' }}" | tr -d '\n\r')"
           echo "Checking $PUBLIC_URL ..."
           for i in {1..12}; do
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PUBLIC_URL" 2>/dev/null || echo "000")
+            HTTP_CODE=$(curl -sk -o /dev/null -w "%{http_code}" "$PUBLIC_URL" 2>/dev/null || echo "000")
             if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ] || [ "$HTTP_CODE" = "301" ]; then
               echo "✅ Frontend health check passed (HTTP $HTTP_CODE)"
               exit 0
